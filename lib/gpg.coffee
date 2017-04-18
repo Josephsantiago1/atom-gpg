@@ -72,7 +72,7 @@ gpgEncrypt = (text, index, callback, stderr_cb, exit_cb) ->
 
   # try to read recipients file and ignore errors
   fileRecipients = ''
-  try fileRecipients = fs.readFileSync gpgRecipientsFile, 'utf8'
+  try fileRecipients = fs.readFileSync recipientsFile, 'utf8'
   catch ENOENT
     () ->
 
