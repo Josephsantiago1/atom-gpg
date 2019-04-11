@@ -23,6 +23,7 @@ module.exports =
       'atom-gpg:encrypt-selections': => @run 'encrypt'
       'atom-gpg:decrypt-selections': => @run 'decrypt'
       'atom-gpg:sign-selections':    => @run 'sign'
+      'atom-gpg:decrypt-selections-clipboard': => @run 'decrypt-clipboard'
 
   bufferSetText: (idx, text) ->
     if @buffer[idx]
@@ -103,6 +104,12 @@ module.exports =
       if not @encrypt and "source.yaml" in @rootScopes and text.startsWith('| ')
         text = text.slice(2,-1)
 
+      bufferedClipboardNotice = (idx, txt) =>
+        output = txt
+        atom.notifications.addInfo txt, {
+          dismissable: true
+        }
+        atom.clipboard.write(txt);
       bufferedRead = (idx, txt) =>
         output = txt
         @bufferSetText idx, output
@@ -118,6 +125,9 @@ module.exports =
       else
         func = gpg.decrypt
 
-      func text, @selectionIndex, bufferedRead, stderr_cb, exit_cb
+      if func_name == 'decrypt-clipboard'
+        gpg['decrypt'] text, @selectionIndex, bufferedClipboardNotice, stderr_cb, exit_cb
+      else
+        gpg[func_name] text, @selectionIndex, bufferedRead, stderr_cb, exit_cb
 
       @selectionIndex++
